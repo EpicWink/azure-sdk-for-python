@@ -10,10 +10,11 @@ from msal import TokenCache
 import six
 
 from azure.core.credentials import AccessToken
-from azure.core.exceptions import ClientAuthenticationError, DecodeError
+from azure.core.exceptions import DecodeError
 from azure.core.pipeline.policies import ContentDecodePolicy
 from .._internal import _scopes_to_resource
 from .._internal.pipeline import build_pipeline
+from .._exceptions import UnexpectedServiceResponse
 
 try:
     ABC = abc.ABC
@@ -56,15 +57,15 @@ class ManagedIdentityClientBase(ABC):
                     message = "Failed to deserialize JSON from response"
                 else:
                     message = 'Unexpected content type "{}"'.format(response.http_response.content_type)
-                six.raise_from(ClientAuthenticationError(message=message, response=response.http_response), ex)
+                six.raise_from(UnexpectedServiceResponse(message=message, response=response.http_response), ex)
 
         if not content:
-            raise ClientAuthenticationError(message="No token received.", response=response.http_response)
+            raise UnexpectedServiceResponse(message="No token received.", response=response.http_response)
 
         if "access_token" not in content or not ("expires_in" in content or "expires_on" in content):
             if content and "access_token" in content:
                 content["access_token"] = "****"
-            raise ClientAuthenticationError(
+            raise UnexpectedServiceResponse(
                 message='Unexpected response "{}"'.format(content), response=response.http_response
             )
 

@@ -5,9 +5,10 @@
 import json
 import time
 
-from azure.core.exceptions import ClientAuthenticationError, ServiceRequestError
+from azure.core.exceptions import ServiceRequestError
 from azure.core.pipeline.transport import HttpRequest
 from azure.identity._internal.managed_identity_client import ManagedIdentityClient
+from azure.identity._exceptions import UnexpectedServiceResponse
 import pytest
 
 from helpers import mock, mock_response, Request, validating_transport
@@ -116,7 +117,7 @@ def test_unexpected_content(content_type):
         request_factory=lambda _, __: HttpRequest("GET", "http://localhost"), transport=mock.Mock(send=send)
     )
 
-    with pytest.raises(ClientAuthenticationError) as ex:
+    with pytest.raises(UnexpectedServiceResponse) as ex:
         client.request_token("scope")
     assert ex.value.response.text() == content
 

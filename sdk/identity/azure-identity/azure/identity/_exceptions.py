@@ -14,6 +14,10 @@ class CredentialUnavailableError(ClientAuthenticationError):
     """The credential did not attempt to authenticate because required data or state is unavailable."""
 
 
+class UnexpectedServiceResponse(ClientAuthenticationError):
+    """The authentication service returned an unexpected response."""
+
+
 class AuthenticationRequiredError(CredentialUnavailableError):
     """Interactive authentication is required to acquire a token.
 
